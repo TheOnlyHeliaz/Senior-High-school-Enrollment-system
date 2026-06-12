@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senior High School Enrollment System</title>
+
+    <style>
+        :root {
+            --primary-color: #003366;
+            --secondary-color: #004d99;
+            --accent-color: #e6f0fa;
+            --danger-color: #dc3545;
+            --danger-hover: #bd2130;
+            --success-color: #28a745;
+            --success-hover: #218838;
+            --warning-color: #ffc107;
+            --text-dark: #333;
+            --bg-body: #f4f6f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-dark);
+            padding: 20px 15px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 25px 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 3px;
+            letter-spacing: 0.5px;
+        }
+
+        /* NEW: System Date Banner Styling */
+        .system-date {
+            font-size: 0.95rem;
+            font-weight: 600;
+            opacity: 0.85;
+            background: rgba(255, 255, 255, 0.15);
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-top: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .nav-btn:hover {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        /* Bulletproof page swapping for mobile screens */
+        .view {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 120px;
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+            transition: opacity 0.2s ease;
+        }
+        
+        .view.active {
+            position: relative;
+            top: 0;
+            opacity: 1;
+            visibility: visible;
+            height: auto;
+            overflow: visible;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .menu-card {
+            background: white;
+            border: 2px solid var(--accent-color);
+            padding: 30px 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .menu-card h3 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+        }
+
+        .login-box, .action-box {
+            max-width: 450px;
+            margin: 30px auto;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select {
+            padding: 12px 14px;
+            width: 100%;
+            border: 1px solid #ccd4da;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: #fff;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.15);
+        }
+
+        .birthday-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+        }
+
+        .notif-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        .notif-badge {
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .table-box {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            font-weight: 700;
+            padding: 14px;
+            border-bottom: 2px solid #cbd5e1;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            width: auto;
+            margin: 2px;
+        }
+        .approve-btn { background: var(--success-color); }
+        .approve-btn:hover { background: var(--success-hover); }
+        .decline-btn { background: #6c757d; }
+        .decline-btn:hover { background: #5a6268; }
+        .delete-btn { background: var(--danger-color); }
+        .delete-btn:hover { background: var(--danger-hover); }
+
+        .no-data {
+            text-align: center;
+            color: #777;
+            padding: 30px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <button id="backBtn" class="nav-btn" onclick="showView('menuView')" style="display: none;">← Main Menu</button>
+        <h1>Senior High School Enrollment System</h1>
+        <p>School Year 2026 - 2027</p>
+        <div id="currentDateDisplay" class="system-date">Loading System Calendar...</div>
+    </div>
+
+    <div id="menuView" class="view active">
+        <div class="card" style="text-align: center;">
+            <h2>Welcome to the SHS Portal</h2>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="showView('studentView')">
+                    <h3>Student Enrollment</h3>
+                    <p style="color:#666; margin-top:5px;">New student application</p>
+                </div>
+                <div class="menu-card" onclick="showView('cancellationView')">
+                    <h3>Request Cancellation</h3>
+                    <p style="color:#666; margin-top:5px;">Cancel an active enrollment</p>
+                </div>
+                <div class="menu-card" onclick="showView('loginView')">
+                    <h3>Admin Portal</h3>
+                    <p style="color:#666; margin-top:5px;">Manage records & alerts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginView" class="view">
+        <div class="card login-box">
+            <h2>Administrator Security Sign-In</h2>
+            <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter Username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter Password" required>
+                </div>
+                <button type="submit" style="margin-top: 10px;">Login as Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="studentView" class="view">
+        <div class="card">
+            <h2>Student Registration Form</h2>
+            <form id="enrollmentForm" onsubmit="event.preventDefault(); enrollStudent();">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="fullname">Full Name</label>
+                        <input type="text" id="fullname" placeholder="e.g., Juan A. Dela Cruz" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="lrn">Learner Reference Number (LRN)</label>
+                        <input type="text" id="lrn" pattern="\d{12}" title="LRN must be exactly 12 digits" placeholder="e.g., 123456789012" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" min="15" max="30" placeholder="e.g., 16" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Birth Date</label>
+                        <div class="birthday-grid">
+                            <select id="birthMonth" required>
+                                <option value="">Month</option>
+                                <option value="01">January</option>
+                                <option value="02">February</option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            <select id="birthDay" required><option value="">Day</option></select>
+                            <select id="birthYear" required><option value="">Year</option></select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="birthplace">Birth Place</label>
+                        <input type="text" id="birthplace" placeholder="e.g., Manila City" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="address">Current Address</label>
+                        <input type="text" id="address" placeholder="e.g., Brgy. 123, Pasay City" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="e.g., juan@email.com" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="grade">Grade Level</label>
+                        <select id="grade" required>
+                            <option value="">Select Grade</option>
+                            <option value="Grade 11">Grade 11</option>
+                            <option value="Grade 12">Grade 12</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="strand">Academic/TVL Strand</label>
+                        <select id="strand" required>
+                            <option value="">Select Strand</option>
+                            <optgroup label="Academic Track">
+                                <option value="GAS">GAS (General Academic Strand)</option>
+                            </optgroup>
+                            <optgroup label="TVL Track">
+                                <option value="Agri">Agri-Fishery Arts</option>
+                                <option value="SMAW">SMAW (Shielded Metal Arc Welding)</option>
+                                <option value="Cookery">Cookery</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="guardian">Parent / Guardian Name</label>
+                        <input type="text" id="guardian" placeholder="e.g., Maria Dela Cruz" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="guardianNumber">Guardian Contact Number</label>
+                        <input type="tel" id="guardianNumber" placeholder="e.g., 09123456789" required>
+                    </div>
+                </div>
+                <button type="submit" style="margin-top: 25px;">Submit Enrollment Form</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="cancellationView" class="view">
+        <div class="card action-box">
+            <h2>Request Enrollment Cancellation</h2>
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                Enter your registered 12-digit LRN below to file a formal cancellation request to the administration.
+            </p>
+            <form id="cancelForm" onsubmit="event.preventDefault(); submitCancellationRequest();">
+                <div class="input-group">
+                    <label for="cancelLrn">Your 12-Digit LRN</label>
+                    <input type="text" id="cancelLrn" pattern="\d{12}" placeholder="e.g., 123456789012" required>
+                </div>
+                <button type="submit" class="delete-btn" style="margin-top: 10px;">File Cancellation Request</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminDashboardView" class="view">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:15px; margin-bottom: 20px;">
+                <div>
+                    <h2 style="border:none; margin:0; padding:0;">Enrolled Students Master List</h2>
+                </div>
+                
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div id="notifButton" class="notif-container" onclick="toggleFilterCancellation()">
+                        🔔 Alerts <span id="notifBadge" class="notif-badge">0</span>
+                    </div>
+                    <button onclick="clearAllSessions()" style="width:auto; padding:10px 16px; background:#555; font-size:0.85rem;">Lock Dashboard</button>
+                </div>
+            </div>
+
+            <div class="table-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Registration Date</th>
+                            <th>Full Name</th>
+                            <th>LRN</th>
+                            <th>Grade & Strand</th>
+                            <th>Gender</th>
+                            <th>Status / Contact</th>
+                            <th style="text-align: center;">Administrative Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+    let showCancellationsOnly = false;
+
+    // Run custom setups on page initialization
+    populateBirthdayDropdowns();
+    initializeSystemCalendar();
+
+    // NEW: Function to display the calendar date inside the blue banner
+    function initializeSystemCalendar() {
+        const dateElement = document.getElementById("currentDateDisplay");
+        const today = new Date();
+        
+        // Formats the current date neatly (e.g., Today is: June 12, 2026)
+        const options = { month: 'long', day: 'numeric', year: 'numeric' };
+        const formattedDate = today.toLocaleDateString('en-US', options);
+        
+        dateElement.innerText = `Today is: ${formattedDate}`;
+    }
+
+    function showView(viewId) {
+        const panels = document.querySelectorAll('.view');
+        for (let i = 0; i < panels.length; i++) {
+            panels[i].classList.remove('active');
+        }
+        
+        document.getElementById(viewId).classList.add('active');
+
+        const backBtn = document.getElementById("backBtn");
+        if (viewId === 'menuView') {
+            backBtn.style.display = "none";
+            document.getElementById("loginForm").reset();
+            document.getElementById("cancelForm").reset();
+        } else {
+            backBtn.style.display = "block";
+        }
+
+        if (viewId === 'adminDashboardView') {
+            showCancellationsOnly = false;
+            updateNotificationBadge();
+            displayStudents();
+        }
+    }
+
+    function handleLogin() {
+        const user = document.getElementById("username").value;
+        const pass = document.getElementById("password").value;
+
+        if (user === "Admin" && pass === "Admin123") {
+            alert("Access Granted. Welcome Administrator.");
+            showView('adminDashboardView');
+        } else {
+            alert("Invalid Security Credentials. Access Denied.");
+        }
+    }
+
+    function clearAllSessions() {
+        showView('menuView');
+    }
+
+    function populateBirthdayDropdowns() {
+        const daySelect = document.getElementById("birthDay");
+        const yearSelect = document.getElementById("birthYear");
+
+        for (let d = 1; d <= 31; d++) {
+            let dayVal = d < 10 ? `0${d}` : d;
+            daySelect.innerHTML += `<option value="${dayVal}">${d}</option>`;
+        }
+
+        const currentYear = new Date().getFullYear();
+        for (let y = currentYear - 13; y >= currentYear - 30; y--) {
+            yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+        }
+    }
+
+    function enrollStudent() {
+        const fullname = document.getElementById("fullname").value.trim();
+        const age = document.getElementById("age").value;
+        const birthplace = document.getElementById("birthplace").value.trim();
+        const address = document.getElementById("address").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const guardian = document.getElementById("guardian").value.trim();
+        const guardianNumber = document.getElementById("guardianNumber").value.trim();
+        const lrn = document.getElementById("lrn").value.trim();
+        const grade = document.getElementById("grade").value;
+        const strand = document.getElementById("strand").value;
+        const gender = document.getElementById("gender").value;
+
+        const month = document.getElementById("birthMonth").value;
+        const day = document.getElementById("birthDay").value;
+        const year = document.getElementById("birthYear").value;
+        const birthday = `${year}-${month}-${day}`;
+
+        const now = new Date();
+        const enrollmentTimestamp = now.toLocaleString('en-US', { 
+            month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true 
+        });
+
+        const lrnExists = students.some(student => student.lrn === lrn);
+        if (lrnExists) {
+            alert("Error: A student with this LRN is already enrolled.");
+            return;
+        }
+
+        students.push({
+            enrollmentTimestamp, fullname, age, birthday, birthplace, address, 
+            email, guardian, guardianNumber, lrn, grade, strand, gender,
+            status: "Enrolled" 
+        });
+
+        localStorage.setItem("students", JSON.stringify(students));
+        
+        document.getElementById("enrollmentForm").reset();
+        alert("Enrollment data recorded successfully!");
+        showView('menuView');
+    }
+
+    function submitCancellationRequest() {
+        const inputLrn = document.getElementById("cancelLrn").value.trim();
+        const studentIndex = students.findIndex(s => s.lrn === inputLrn);
+
+        if (studentIndex === -1) {
+            alert("Error: No enrolled student record found matching this LRN number.");
+            return;
+        }
+
+        if (students[studentIndex].status === "Pending Cancellation") {
+            alert("Notice: A cancellation request for this student is already pending admin approval.");
+            return;
+        }
+
+        if (confirm(`Are you sure you want to submit a cancellation request for ${students[studentIndex].fullname}?`)) {
+            students[studentIndex].status = "Pending Cancellation";
+            localStorage.setItem("students", JSON.stringify(students));
+            alert("Your cancellation request has been filed successfully.");
+            showView('menuView');
+        }
+    }
+
+    function updateNotificationBadge() {
+        const pendingCount = students.filter(s => s.status === "Pending Cancellation").length;
+        const badge = document.getElementById("notifBadge");
+        badge.innerText = pendingCount;
+        
+        if (pendingCount > 0) {
+            badge.style.background = "var(--danger-color)";
+        } else {
+            badge.style.background = "#aaa";
+        }
+    }
+
+    function toggleFilterCancellation() {
+        showCancellationsOnly = !showCancellationsOnly;
+        const btn = document.getElementById("notifButton");
+        
+        if (showCancellationsOnly) {
+            btn.style.border = "2px solid var(--danger-color)";
+            btn.style.background = "#fdf2f2";
+        } else {
+            btn.style.border = "1px solid #e2e8f0";
+            btn.style.background = "#f8fafc";
+        }
+        displayStudents();
+    }
+
+    function displayStudents() {
+        const tableBody = document.getElementById("studentTable");
+        tableBody.innerHTML = "";
+
+        let displayList = students;
+        if (showCancellationsOnly) {
+            displayList = students.filter(s => s.status === "Pending Cancellation");
+        }
+
+        if (displayList.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="7" class="no-data">No student records match current active view.</td></tr>`;
+            return;
+        }
+
+        displayList.forEach((student) => {
+            const exactIndex = students.findIndex(s => s.lrn === student.lrn);
+            const birthFormatted = new Date(student.birthday).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric'
+            });
+
+            let statusMarkup = "";
+            let actionButtonsMarkup = "";
+
+            if (student.status === "Pending Cancellation") {
+                statusMarkup = `<br><span class="status-badge status-pending">⚠️ Cancellation Requested</span>`;
+                actionButtonsMarkup = `
+                    <button class="action-btn approve-btn" onclick="processRequest(${exactIndex}, 'approve')">Approve Cancel</button>
+                    <button class="action-btn decline-btn" onclick="processRequest(${exactIndex}, 'decline')">Decline</button>
+                `;
+            } else {
+                statusMarkup = `<br><small style="color:#666">Guardian: ${student.guardian} (${student.guardianNumber})</small>`;
+                actionButtonsMarkup = `
+                    <button class="delete-btn action-btn" onclick="processRequest(${exactIndex}, 'delete')">Delete</button>
+                `;
+            }
+
+            tableBody.innerHTML += `
+                <tr>
+                    <td style="color: #004d99; font-weight: 600; font-size: 0.85rem;">${student.enrollmentTimestamp || 'N/A'}</td>
+                    <td><strong>${student.fullname}</strong><br><small style="color:#777">Born: ${birthFormatted}</small></td>
+                    <td><span class="badge">${student.lrn}</span></td>
+                    <td>${student.grade} - <strong>${student.strand}</strong></td>
+                    <td>${student.gender}</td>
+                    <td><small>${student.email}</small>${statusMarkup}</td>
+                    <td style="text-align: center;">
+                        ${actionButtonsMarkup}
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function processRequest(index, action) {
+        const targetStudent = students[index];
+
+        if (action === 'approve') {
+            if (confirm(`Confirm Approval:\nRemove ${targetStudent.fullname} completely from school registration files?`)) {
+                students.splice(index, 1);
+                alert("Enrollment canceled. Student record purged.");
+            }
+        } else if (action === 'decline') {
+            if (confirm(`Decline Cancellation Request:\nRestore ${targetStudent.fullname} to an active 'Enrolled' status?`)) {
+                students[index].status = "Enrolled";
+                alert("Cancellation request rejected.");
+            }
+        } else if (action === 'delete') {
+            if (confirm(`Are you sure you want to permanently delete the active enrollment record of ${targetStudent.fullname}?`)) {
+                students.splice(index, 1);
+                alert("Student profile permanently deleted.");
+            }
+        }
+
+        localStorage.setItem("students", JSON.stringify(students));
+        updateNotificationBadge();
+        displayStudents();
+    }
+</script>
+
+</body>
+</html>
